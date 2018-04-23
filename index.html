@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Youtube Playlist Video Manager</title>
+
+    <!-- For this Page -->
+    <link rel="stylesheet" type="text/css" href="./css/main.css">
+    <link rel="stylesheet" type="text/css" href="./css/my_uploads.css">
+
+
+    <!-- jQuery -->
+    <script src="./lib/jquery-3.1.1/jquery-3.1.1.min.js"></script>
+
+    <!-- lodash -->
+    <script src="./lib/lodash-4.16.6/lodash.min.js"></script>
+
+    <!-- x2js -->
+    <script src="./lib/x2js/xml2json.min.js"></script>
+
+    <!-- moment -->
+    <script src="./lib/moment/moment.min.js"></script>
+
+    <!-- google api -->
+
+    <!-- playlist manager -->
+    <script src="./js/util.js"></script>
+    <script src="./js/const.js"></script>
+
+    <script type="text/javascript" src="./js/api/auth.js"></script>
+    <script type="text/javascript" src="./js/api/my_uploads.js"></script>
+
+    <script src="https://apis.google.com/js/client.js?onload=googleApiClientReady"></script>
+</head>
+
+<body>
+
+    <div id="login-container" class="pre-auth">
+        This application requires access to your YouTube account. Please <a href="#" id="login-link">authorize</a> to continue.
+    </div>
+    <div id="video-container">
+    </div>
+    <div class="button-container">
+        <button id="prev-button" class="paging-button" onclick="previousPage();">Previous Page</button>
+        <button id="next-button" class="paging-button" onclick="nextPage();">Next Page</button>
+    </div>
+
+
+</body>
+
+</html>
