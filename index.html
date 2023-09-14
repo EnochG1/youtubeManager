@@ -12,14 +12,21 @@
 <script src="https://apis.google.com/js/api.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
+	let proxyConfig;
+	try {
+		proxyConfig = require('./config/key.json');
+	} catch (err) {
+		throw new Error('config/key.json 파일을 설정하세요 (config/key.json.sample 참조)');
+	}
+
   /**
    * Sample JavaScript code for youtube.playlistItems.list
    * See instructions for running APIs Explorer code samples locally:
    * https://developers.google.com/explorer-help/code-samples#javascript
    */
-  const CLIENT_ID = '433766089620-nafog9i6cpsfaklar8tvtj64go4ckgho.apps.googleusercontent.com'
-  const API_KEY = 'AIzaSyBYu5j57Qok1Eta7S73TmvNkO0ZaurPQDk';
-  var PLAYLIST_ID = "PLK3yfEsDjbuU1paw3R2gId84xkve-GOW-";
+  const CLIENT_ID = proxyConfig.clientId
+  const API_KEY = proxyConfig.apiKey;
+  var PLAYLIST_ID = proxyConfig.playlistId;
   var videoList = [];
 
   gapi.load("client:auth2", function() {

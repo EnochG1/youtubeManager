@@ -2,9 +2,18 @@ const http = require('http');
 const https = require('https');
 const url = require('url');
 const { google } = require('googleapis');
-const YOUR_CLIENT_ID = '785963311672-aau5774film5em3s85l3cp03t0jrh8a1.apps.googleusercontent.com';
-const YOUR_CLIENT_SECRET = '6N3GBOcGNHIiJJyW0llUT9ys';
+
+let proxyConfig;
+try {
+	proxyConfig = require('./config/key.json');
+} catch (err) {
+	throw new Error('config/key.json 파일을 설정하세요 (config/key.json.sample 참조)');
+}
+
+const YOUR_CLIENT_ID = proxyConfig.clientId
+const YOUR_CLIENT_SECRET = proxyConfig.clientSecret;
 const YOUR_REDIRECT_URL = 'http://localhost:9000';
+const YOUR_API_KEY = proxyConfig.apiKey;
 
 /**
  * To use OAuth2 authentication, we need access to a CLIENT_ID, CLIENT_SECRET, AND REDIRECT_URI.
