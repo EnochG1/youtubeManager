@@ -1,0 +1,36 @@
+{
+  "name": "youtubemanager",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.html",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "dev": "webpack serve",
+    "sample": "node ./index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EnochG1/youtubeManager.git"
+  },
+  "author": "EnochG1",
+  "license": "MIT",
+  "dependencies": {
+    "fs": "^0.0.1-security",
+    "googleapis": "^126.0.1",
+    "jquery": "^3.7.1",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.4",
+    "path": "^0.12.7",
+    "process": "^0.11.10",
+    "vue": "^3.3.4",
+    "x2js": "^3.4.4"
+  },
+  "devDependencies": {
+    "copy-webpack-plugin": "^5.1.2",
+    "webpack": "^4.46.0",
+    "webpack-cli": "^4.10.0",
+    "webpack-dev-server": "^4.15.1"
+  }
+}

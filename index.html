@@ -1,58 +1,130 @@
-<!DOCTYPE html>
-<html lang="en">
+<style>
+    table, th, td {
+        border: 1px solid black;
+    }
 
-<head>
+    body {
+        font-size: 12px
+    }
+</style>
 
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
+<script src="./lib/jquery-3.1.1/jquery-3.1.1.min.js"></script>
+<script src="https://apis.google.com/js/api.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+  /**
+   * Sample JavaScript code for youtube.playlistItems.list
+   * See instructions for running APIs Explorer code samples locally:
+   * https://developers.google.com/explorer-help/code-samples#javascript
+   */
+  const CLIENT_ID = '433766089620-nafog9i6cpsfaklar8tvtj64go4ckgho.apps.googleusercontent.com'
+  const API_KEY = 'AIzaSyBYu5j57Qok1Eta7S73TmvNkO0ZaurPQDk';
+  var PLAYLIST_ID = "PLK3yfEsDjbuU1paw3R2gId84xkve-GOW-";
+  var videoList = [];
 
-    <title>Youtube Playlist Video Manager</title>
+  gapi.load("client:auth2", function() {
+    gapi.auth2.init({client_id: CLIENT_ID});
+  });
 
-    <!-- For this Page -->
-    <link rel="stylesheet" type="text/css" href="./css/main.css">
-    <link rel="stylesheet" type="text/css" href="./css/my_uploads.css">
+  function authenticate() {
+    return gapi.auth2.getAuthInstance()
+        .signIn({scope: "https://www.googleapis.com/auth/youtube.readonly"})
+        .then(function() { console.log("Sign-in successful"); },
+              function(err) { console.error("Error signing in", err); });
+  }
+  function loadClient() {
+    gapi.client.setApiKey(API_KEY);
+    return gapi.client.load("https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest")
+        .then(function() { console.log("GAPI client loaded for API"); },
+              function(err) { console.error("Error loading GAPI client for API", err); });
+  }
+
+  // Make sure the client is loaded and sign-in is complete before calling this method.
+  function search() {
+    videoList = [];
+    $('#result-table-row').html('');
+
+    let playlistId = $('#playlistId').val() || PLAYLIST_ID;
+    getVideoList(playlistId)
+  }
 
 
-    <!-- jQuery -->
-    <script src="./lib/jquery-3.1.1/jquery-3.1.1.min.js"></script>
+  function getVideoList(playlistId, pageToken) {
+    var requestOptions = {
+        playlistId: playlistId,
+        part: ['snippet,contentDetails'],
+        maxResults: 50
+    };
+    if (pageToken) {
+        requestOptions.pageToken = pageToken;
+    }
 
-    <!-- lodash -->
-    <script src="./lib/lodash-4.16.6/lodash.min.js"></script>
+    gapi.client.youtube.playlistItems.list(requestOptions).then((response) => {
+        var playlistItems = response.result.items;
+        if (playlistItems) {
+            $.each(playlistItems, function(index, item) {
+                displayResult(item);
+            });
+        }
 
-    <!-- x2js -->
-    <script src="./lib/x2js/xml2json.min.js"></script>
+        nextPageToken = response.result.nextPageToken;
+        if (nextPageToken) {
+            getVideoList(playlistId, nextPageToken);
+        }
+    });
+  }
+    
+// Create a listing for a video.
+function displayResult(item) {
+    var thumbnail = item.snippet.thumbnails.default;
+    var position = item.snippet.position;
+    var title = item.snippet.title;
+    var videoId = item.snippet.resourceId.videoId;
+    var playlistItemId = item.id;
+    var uploadDate = item.contentDetails?.videoPublishedAt;
 
-    <!-- moment -->
-    <script src="./lib/moment/moment.min.js"></script>
+    var line = `
+<tr>
+  <td><img src="${thumbnail?.url}"></td>
+  <td>${position}</td>
+  <td>${title}</td>
+  <td><a href="http://youtu.be/${videoId}" target="_blank">${videoId}</a><button onclick="copyToClipboard('${videoId}')">copy</button></td>
+  <td>${playlistItemId}<button onclick="copyToClipboard('${playlistItemId}')">copy</button></td>
+  <td>${uploadDate}</td>
+</tr>'
+`;
+    $('#result-table-row').append(line);
+    videoList.push({
+        videoId: videoId,
+        title: title
+    });
+}
 
-    <!-- google api -->
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text);
+}
+</script>
 
-    <!-- playlist manager -->
-    <script src="./js/util.js"></script>
-    <script src="./js/const.js"></script>
 
-    <script type="text/javascript" src="./js/api/auth.js"></script>
-    <script type="text/javascript" src="./js/api/my_uploads.js"></script>
-
-    <script src="https://apis.google.com/js/client.js?onload=googleApiClientReady"></script>
-</head>
-
-<body>
-
-    <div id="login-container" class="pre-auth">
-        This application requires access to your YouTube account. Please <a href="#" id="login-link">authorize</a> to continue.
+<!--<div id="g_id_onload"
+         data-client_id="433766089620-nafog9i6cpsfaklar8tvtj64go4ckgho.apps.googleusercontent.com"
+         data-callback="handleCredentialResponse">
     </div>
-    <div id="video-container">
-    </div>
-    <div class="button-container">
-        <button id="prev-button" class="paging-button" onclick="previousPage();">Previous Page</button>
-        <button id="next-button" class="paging-button" onclick="nextPage();">Next Page</button>
-    </div>
+<div class="g_id_signin" data-type="standard"></div>-->
 
-
-</body>
-
-</html>
+<button onclick="authenticate().then(loadClient)">authorize and load</button>
+<input id="playlistId" type="text" value="PLK3yfEsDjbuU1paw3R2gId84xkve-GOW-" style="width: 300px"/>
+<button onclick="search()">search</button>
+<table id="result-table" class="display compact">
+    <thead>
+        <tr>
+            <th>thumbnails</th>
+            <th>Position</th>
+            <th>Title</th>
+            <th>Video ID</th>
+            <th>Playlist Item Id</th>
+            <th>Upload Date</th>
+        </tr>
+    </thead>
+    <tbody id="result-table-row"></tbody>
+</table>
