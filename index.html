@@ -1,9 +1,6 @@
 <style>
     table, th, td {
         border: 1px solid black;
-    }
-
-    body {
         font-size: 12px
     }
 </style>
@@ -11,106 +8,8 @@
 <script src="./lib/jquery-3.1.1/jquery-3.1.1.min.js"></script>
 <script src="https://apis.google.com/js/api.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
-<script>
-	let proxyConfig;
-	try {
-		proxyConfig = require('./config/key.json');
-	} catch (err) {
-		throw new Error('config/key.json 파일을 설정하세요 (config/key.json.sample 참조)');
-	}
-
-  /**
-   * Sample JavaScript code for youtube.playlistItems.list
-   * See instructions for running APIs Explorer code samples locally:
-   * https://developers.google.com/explorer-help/code-samples#javascript
-   */
-  const CLIENT_ID = proxyConfig.clientId
-  const API_KEY = proxyConfig.apiKey;
-  var PLAYLIST_ID = proxyConfig.playlistId;
-  var videoList = [];
-
-  gapi.load("client:auth2", function() {
-    gapi.auth2.init({client_id: CLIENT_ID});
-  });
-
-  function authenticate() {
-    return gapi.auth2.getAuthInstance()
-        .signIn({scope: "https://www.googleapis.com/auth/youtube.readonly"})
-        .then(function() { console.log("Sign-in successful"); },
-              function(err) { console.error("Error signing in", err); });
-  }
-  function loadClient() {
-    gapi.client.setApiKey(API_KEY);
-    return gapi.client.load("https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest")
-        .then(function() { console.log("GAPI client loaded for API"); },
-              function(err) { console.error("Error loading GAPI client for API", err); });
-  }
-
-  // Make sure the client is loaded and sign-in is complete before calling this method.
-  function search() {
-    videoList = [];
-    $('#result-table-row').html('');
-
-    let playlistId = $('#playlistId').val() || PLAYLIST_ID;
-    getVideoList(playlistId)
-  }
-
-
-  function getVideoList(playlistId, pageToken) {
-    var requestOptions = {
-        playlistId: playlistId,
-        part: ['snippet,contentDetails'],
-        maxResults: 50
-    };
-    if (pageToken) {
-        requestOptions.pageToken = pageToken;
-    }
-
-    gapi.client.youtube.playlistItems.list(requestOptions).then((response) => {
-        var playlistItems = response.result.items;
-        if (playlistItems) {
-            $.each(playlistItems, function(index, item) {
-                displayResult(item);
-            });
-        }
-
-        nextPageToken = response.result.nextPageToken;
-        if (nextPageToken) {
-            getVideoList(playlistId, nextPageToken);
-        }
-    });
-  }
-    
-// Create a listing for a video.
-function displayResult(item) {
-    var thumbnail = item.snippet.thumbnails.default;
-    var position = item.snippet.position;
-    var title = item.snippet.title;
-    var videoId = item.snippet.resourceId.videoId;
-    var playlistItemId = item.id;
-    var uploadDate = item.contentDetails?.videoPublishedAt;
-
-    var line = `
-<tr>
-  <td><img src="${thumbnail?.url}"></td>
-  <td>${position}</td>
-  <td>${title}</td>
-  <td><a href="http://youtu.be/${videoId}" target="_blank">${videoId}</a><button onclick="copyToClipboard('${videoId}')">copy</button></td>
-  <td>${playlistItemId}<button onclick="copyToClipboard('${playlistItemId}')">copy</button></td>
-  <td>${uploadDate}</td>
-</tr>'
-`;
-    $('#result-table-row').append(line);
-    videoList.push({
-        videoId: videoId,
-        title: title
-    });
-}
-
-function copyToClipboard(text) {
-    navigator.clipboard.writeText(text);
-}
-</script>
+<script type="module" src="./src/key.js"></script>
+<script src="./src/main.js"></script>
 
 
 <!--<div id="g_id_onload"
@@ -121,7 +20,9 @@ function copyToClipboard(text) {
 
 <button onclick="authenticate().then(loadClient)">authorize and load</button>
 <input id="playlistId" type="text" value="PLK3yfEsDjbuU1paw3R2gId84xkve-GOW-" style="width: 300px"/>
-<button onclick="search()">search</button>
+<button id="btnSearch" onclick="search()" disabled>search</button>
+<input id="allPosition" type="number" style="width: 50px"/>
+<button onclick="setAllPosition()">set position all</button>
 <table id="result-table" class="display compact">
     <thead>
         <tr>
@@ -131,6 +32,8 @@ function copyToClipboard(text) {
             <th>Video ID</th>
             <th>Playlist Item Id</th>
             <th>Upload Date</th>
+            <th>Position</th>
+            <th>Copy Req</th>
         </tr>
     </thead>
     <tbody id="result-table-row"></tbody>

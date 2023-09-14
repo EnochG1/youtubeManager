@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "webpack serve",
-    "sample": "node ./index.js"
+    "sample": "node ./index_sample.js"
   },
   "repository": {
     "type": "git",
